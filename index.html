@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Kerajaan Perkalian - Game Matematika 3 SD</title>
+    <!-- Tailwind CSS for utility layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-game {
+            font-family: 'Fredoka One', cursive, sans-serif;
+        }
+
+        /* 3D Claymorphism & Modern Cartoon Visuals */
+        .bg-realm {
+            background: linear-gradient(135deg, #6ee7b7 0%, #3b82f6 50%, #9333ea 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 3D Card / Container Effect */
+        .clay-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 2rem;
+            box-shadow: 
+                0 20px 30px rgba(0, 0, 0, 0.15),
+                inset 0 -8px 0 rgba(0, 0, 0, 0.08),
+                inset 0 8px 10px rgba(255, 255, 255, 0.9);
+            border: 4px solid #ffffff;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 3D Buttons */
+        .btn-3d {
+            transition: all 0.15s ease;
+            position: relative;
+            transform-style: preserve-3d;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 0 var(--btn-shadow, #1d4ed8), 0 15px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0 var(--btn-shadow, #1d4ed8), 0 20px 25px rgba(0,0,0,0.25);
+        }
+
+        .btn-3d:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 var(--btn-shadow, #1d4ed8), 0 5px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-green {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            --btn-shadow: #15803d;
+            color: white;
+        }
+
+        .btn-yellow {
+            background: linear-gradient(180deg, #fde047 0%, #eab308 100%);
+            --btn-shadow: #a16207;
+            color: #713f12;
+        }
+
+        .btn-blue {
+            background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+            --btn-shadow: #1d4ed8;
+            color: white;
+        }
+
+        .btn-purple {
+            background: linear-gradient(180deg, #c084fc 0%, #9333ea 100%);
+            --btn-shadow: #6b21a8;
+            color: white;
+        }
+
+        .btn-red {
+            background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+            --btn-shadow: #b91c1c;
+            color: white;
+        }
+
+        /* Floating Stars Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(5deg); }
+        }
+
+        .animate-float {
+            animation: floatSlow 3s ease-in-out infinite;
+        }
+
+        /* Pulse Robot Animation */
+        @keyframes robotBob {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.02); }
+        }
+
+        .robot-bob {
+            animation: robotBob 2.5s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-realm min-h-screen flex items-center justify-center p-2 sm:p-4 overflow-x-hidden relative">
+
+    <!-- Background Floating Particles Canvas -->
+    <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Victory Fireworks Canvas -->
+    <canvas id="fireworksCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-4xl z-10 my-auto">
+        
+        <!-- AUDIO CONTROLS (Top Bar) -->
+        <header class="flex justify-between items-center mb-4 px-2">
+            <!-- Brand Badge -->
+            <div class="flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2 rounded-2xl shadow-md border-2 border-white">
+                <span class="text-2xl">👑</span>
+                <span class="font-game text-xl text-blue-600 hidden sm:inline">Kerajaan Perkalian</span>
+            </div>
+
+            <!-- Settings Controls -->
+            <div class="flex items-center gap-2 sm:gap-3 bg-white/80 backdrop-blur px-3 py-2 rounded-2xl shadow-md border-2 border-white">
+                <button id="btnSound" onclick="toggleSFX()" class="p-2 rounded-xl bg-blue-100 hover:bg-blue-200 transition text-lg" title="Efek Suara">
+                    🔊
+                </button>
+                <button id="btnMusic" onclick="toggleMusic()" class="p-2 rounded-xl bg-purple-100 hover:bg-purple-200 transition text-lg" title="Musik Latar">
+                    🎵
+                </button>
+                <button id="btnHelp" onclick="showHelpModal()" class="p-2 rounded-xl bg-yellow-100 hover:bg-yellow-200 transition text-lg font-bold text-yellow-700" title="Petunjuk">
+                    ❓
+                </button>
+            </div>
+        </header>
+
+        <!-- SCREEN 1: START MENU -->
+        <div id="screenStart" class="clay-card p-6 sm:p-10 text-center flex flex-col items-center relative overflow-hidden">
+            <!-- Title -->
+            <div class="mb-4">
+                <span class="bg-yellow-300 text-yellow-900 text-xs sm:text-sm font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm inline-block mb-2">
+                    Matematika Kelas 3 SD
+                </span>
+                <h1 class="font-game text-3xl sm:text-5xl md:text-6xl text-blue-600 drop-shadow-[0_4px_0_rgba(29,78,216,0.3)] tracking-wide">
+                    PETUALANGAN KERAJAAN PERKALIAN
+                </h1>
+                <p class="text-purple-700 font-bold text-lg sm:text-xl mt-1">
+                    ✨ Belajar Perkalian Jadi Seru & Mudah! ✨
+                </p>
+            </div>
+
+            <!-- Robot Character Vector (CSS SVG) -->
+            <div class="w-44 h-44 sm:w-56 sm:h-56 my-2 relative robot-bob flex justify-center items-center">
+                <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-xl">
+                    <!-- Antenna -->
+                    <line x1="100" y1="35" x2="100" y2="15" stroke="#64748b" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="100" cy="12" r="10" fill="#facc15" class="animate-pulse"/>
+                    <polygon points="100,5 103,11 109,12 104,16 106,22 100,18 94,22 96,16 91,12 97,11" fill="#ef4444"/>
+                    
+                    <!-- Ears -->
+                    <rect x="35" y="65" width="12" height="25" rx="5" fill="#3b82f6"/>
+                    <rect x="153" y="65" width="12" height="25" rx="5" fill="#3b82f6"/>
+
+                    <!-- Head -->
+                    <rect x="45" y="35" width="110" height="85" rx="25" fill="#60a5fa" stroke="#2563eb" stroke-width="5"/>
+                    <!-- Face Screen -->
+                    <rect x="58" y="48" width="84" height="60" rx="15" fill="#1e293b"/>
+                    <!-- Eyes -->
+                    <circle cx="80" cy="72" r="11" fill="#38bdf8"/>
+                    <circle cx="80" cy="72" r="4" fill="#ffffff"/>
+                    <circle cx="120" cy="72" r="11" fill="#38bdf8"/>
+                    <circle cx="120" cy="72" r="4" fill="#ffffff"/>
+                    <!-- Cheeks -->
+                    <circle cx="70" cy="90" r="6" fill="#f43f5e" opacity="0.6"/>
+                    <circle cx="130" cy="90" r="6" fill="#f43f5e" opacity="0.6"/>
+                    <!-- Smile Mouth -->
+                    <path d="M 90 88 Q 100 98 110 88" fill="transparent" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
+
+                    <!-- Body -->
+                    <rect x="55" y="125" width="90" height="65" rx="20" fill="#3b82f6" stroke="#1d4ed8" stroke-width="5"/>
+                    <!-- Chest Screen -->
+                    <rect x="70" y="138" width="60" height="38" rx="10" fill="#ffffff"/>
+                    <text x="100" y="163" font-family="Fredoka One" font-size="20" fill="#9333ea" text-anchor="middle" id="startRobotText">
+                        2×3=6
+                    </text>
+                    <!-- Arms -->
+                    <path d="M 55 140 Q 30 155 35 175" stroke="#60a5fa" stroke-width="12" stroke-linecap="round" fill="none"/>
+                    <circle cx="35" cy="175" r="8" fill="#facc15"/>
+                    <path d="M 145 140 Q 170 120 165 100" stroke="#60a5fa" stroke-width="12" stroke-linecap="round" fill="none"/>
+                    <circle cx="165" cy="100" r="8" fill="#facc15"/>
+                </svg>
+            </div>
+
+            <!-- Start Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md mt-4">
+                <button onclick="startGame()" class="btn-3d btn-green font-game text-2xl py-4 px-8 w-full tracking-wide">
+                    🎮 MULAI BERMAIN
+                </button>
+            </div>
+            
+            <div class="mt-4 flex gap-3 text-sm text-gray-600 font-bold">
+                <span>⭐ 4 Level Menantang</span>
+                <span>•</span>
+                <span>🤖 Didampingi Robot MATI</span>
+            </div>
+        </div>
+
+        <!-- GAME CONTAINER (LEVELS) -->
+        <div id="screenGame" class="clay-card p-4 sm:p-6 hidden relative">
+            
+            <!-- GAME HEADER BAR -->
+            <div class="flex justify-between items-center bg-blue-50/80 p-3 rounded-2xl mb-4 border-2 border-blue-100">
+                <!-- Level Badge -->
+                <div class="flex items-center gap-2">
+                    <span id="levelBadge" class="bg-purple-600 text-white font-game px-3 py-1 rounded-xl text-sm sm:text-base">
+                        LEVEL 1
+                    </span>
+                    <span id="levelTitle" class="font-bold text-gray-700 text-sm sm:text-base hidden sm:inline">
+                        Kenali Perkalian
+                    </span>
+                </div>
+
+                <!-- Stars & Score -->
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-1 font-game text-yellow-500 text-xl">
+                        ⭐ <span id="scoreStars">0</span>
+                    </div>
+                    <div class="bg-blue-600 text-white font-game px-3 py-1 rounded-xl text-sm sm:text-base">
+                        SKOR: <span id="scoreText">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEVEL 1: KENALI PERKALIAN (CONCPT) -->
+            <div id="level1" class="level-container space-y-4">
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 text-center">
+                    <h2 class="font-game text-xl text-yellow-800">💡 Konsep Penjumlahan Berulang</h2>
+                    <p class="text-sm sm:text-base text-yellow-900 mt-1">
+                        Perkalian adalah menjumlahkan angka yang sama secara berulang-ulang!
+                    </p>
+                </div>
+
+                <!-- Concept Visual Area -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl border-2 border-gray-100 shadow-inner flex flex-col items-center">
+                    <div id="l1Equation" class="font-game text-3xl sm:text-4xl text-blue-600 mb-4">
+                        3 × 2 = ?
+                    </div>
+
+                    <!-- Visual Groups Container -->
+                    <div id="l1VisualGroups" class="flex flex-wrap justify-center gap-4 my-2 min-h-[120px] items-center">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div id="l1Explanation" class="text-gray-700 font-extrabold text-base sm:text-lg text-center mt-3 h-8">
+                        Tekan tombol "Hitung Hasil" untuk membuktikan!
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex justify-center gap-4">
+                    <button id="l1BtnCalculate" onclick="calcLevel1()" class="btn-3d btn-yellow font-game text-xl py-3 px-6">
+                        🔍 Hitung Hasil!
+                    </button>
+                    <button id="l1BtnNext" onclick="nextLevel1Question()" class="btn-3d btn-green font-game text-xl py-3 px-6 hidden">
+                        Lanjut Soal ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- LEVEL 2: HITUNG DAN PILIH (MULTIPLE CHOICE) -->
+            <div id="level2" class="level-container space-y-4 hidden">
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-3 text-center">
+                    <h2 class="font-game text-lg sm:text-xl text-blue-800">🎯 Hitung & Pilih Jawaban Benar!</h2>
+                </div>
+
+                <!-- Question Box -->
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-6 rounded-3xl text-center shadow-lg relative">
+                    <div class="text-sm font-bold text-blue-200 uppercase tracking-widest mb-1">Soal Perkalian</div>
+                    <div id="l2QuestionText" class="font-game text-4xl sm:text-6xl drop-shadow-md">
+                        4 × 3 = ?
+                    </div>
+                </div>
+
+                <!-- Hint Area -->
+                <div id="l2HintBox" class="bg-purple-100 text-purple-900 p-3 rounded-xl text-center font-bold text-sm sm:text-base border border-purple-200 hidden">
+                    💡 Petunjuk: <span id="l2HintText">4 × 3 artinya 3 + 3 + 3 + 3</span>
+                </div>
+
+                <!-- Options Grid -->
+                <div id="l2OptionsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- LEVEL 3: PETUALANGAN ANGKA (GATE ADVENTURE) -->
+            <div id="level3" class="level-container space-y-4 hidden">
+                <div class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-3 text-center">
+                    <h2 class="font-game text-lg sm:text-xl text-purple-800">🏰 Buka Gerbang Kerajaan!</h2>
+                    <p class="text-xs sm:text-sm text-purple-700">Pilih kunci perkalian yang tepat untuk membuka 3 gerbang istana!</p>
+                </div>
+
+                <!-- Progress Gates -->
+                <div class="flex justify-center items-center gap-4 py-2">
+                    <div id="gate1" class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-amber-400 border-4 border-amber-600 flex items-center justify-center text-2xl shadow-md">🚪</div>
+                    <div class="h-2 w-8 bg-gray-300 rounded"></div>
+                    <div id="gate2" class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gray-300 border-4 border-gray-400 flex items-center justify-center text-2xl shadow-md">🔒</div>
+                    <div class="h-2 w-8 bg-gray-300 rounded"></div>
+                    <div id="gate3" class="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gray-300 border-4 border-gray-400 flex items-center justify-center text-2xl shadow-md">🔒</div>
+                </div>
+
+                <!-- Story Question Card -->
+                <div class="bg-white p-5 rounded-3xl border-2 border-purple-100 shadow-md">
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl hidden sm:block">📜</div>
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Tantangan Cerita</span>
+                            <h3 id="l3StoryQuestion" class="font-bold text-gray-800 text-base sm:text-xl mt-1">
+                                Loading soal...
+                            </h3>
+                        </div>
+                    </div>
+                    <!-- Visual Clue -->
+                    <div id="l3VisualClue" class="flex flex-wrap justify-center gap-2 mt-4 p-3 bg-purple-50 rounded-2xl">
+                    </div>
+                </div>
+
+                <!-- Key Options -->
+                <div id="l3KeysContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Keys Populated by JS -->
+                </div>
+            </div>
+
+            <!-- LEVEL 4: TANTANGAN RAJA PERKALIAN (BOSS LEVEL) -->
+            <div id="level4" class="level-container space-y-4 hidden">
+                <!-- Status Bar -->
+                <div class="flex justify-between items-center bg-red-50 border-2 border-red-200 rounded-2xl p-3">
+                    <div class="flex items-center gap-2">
+                        <span class="font-game text-red-600 text-sm sm:text-base">TANTANGAN RAJA</span>
+                        <span id="l4QuestionIndex" class="bg-red-600 text-white font-bold text-xs px-2 py-0.5 rounded-full">1/10</span>
+                    </div>
+
+                    <!-- Hearts / Lives -->
+                    <div id="l4Lives" class="flex gap-1 text-2xl">
+                        ❤️ ❤️ ❤️
+                    </div>
+                </div>
+
+                <!-- Boss Card -->
+                <div class="bg-gradient-to-r from-red-600 to-orange-500 text-white p-6 rounded-3xl text-center shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 text-8xl opacity-20">👑</div>
+                    <div class="text-xs font-extrabold text-yellow-300 uppercase tracking-widest mb-1">Selesaikan 10 Soal Acak!</div>
+                    <div id="l4QuestionText" class="font-game text-4xl sm:text-6xl text-white drop-shadow-lg">
+                        7 × 8 = ?
+                    </div>
+                </div>
+
+                <!-- Boss Options Grid -->
+                <div id="l4OptionsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- ROBOT FEEDBACK COMPONENT (FOOTER OF GAME) -->
+            <div class="mt-6 bg-white/90 rounded-2xl p-3 border-2 border-blue-100 flex items-center gap-3 shadow-sm">
+                <div class="w-12 h-12 flex-shrink-0">
+                    <svg viewBox="0 0 200 200" class="w-full h-full">
+                        <rect x="45" y="35" width="110" height="85" rx="25" fill="#60a5fa"/>
+                        <rect x="58" y="48" width="84" height="60" rx="15" fill="#1e293b"/>
+                        <circle cx="80" cy="72" r="10" fill="#38bdf8"/>
+                        <circle cx="120" cy="72" r="10" fill="#38bdf8"/>
+                        <path d="M 90 88 Q 100 98 110 88" fill="transparent" stroke="#facc15" stroke-width="5"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-blue-600 uppercase">Robot MATI Berkata:</div>
+                    <div id="robotFeedbackText" class="font-bold text-gray-700 text-xs sm:text-sm">
+                        "Ayo semangat! Kamu pasti bisa menyelesaikan semua level!"
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SCREEN 3: KEMENANGAN (VICTORY BOARD) -->
+        <div id="screenVictory" class="clay-card p-6 sm:p-10 text-center flex flex-col items-center hidden relative overflow-hidden">
+            <!-- Trophy Animation -->
+            <div class="text-7xl sm:text-8xl my-2 animate-bounce">
+                🏆
+            </div>
+
+            <h1 class="font-game text-3xl sm:text-5xl text-yellow-500 drop-shadow-[0_4px_0_rgba(161,98,7,0.3)]">
+                HEBAT! KAMU JUARA PERKALIAN!
+            </h1>
+            <p id="victorySubtitle" class="text-purple-700 font-extrabold text-lg sm:text-xl mt-1">
+                Kamu telah menaklukkan seluruh Tantangan Kerajaan!
+            </p>
+
+            <!-- Stars Awarded -->
+            <div id="victoryStarsContainer" class="flex justify-center gap-3 my-4 text-4xl sm:text-6xl text-yellow-400">
+                ⭐ ⭐ ⭐
+            </div>
+
+            <!-- Stats Box -->
+            <div class="bg-blue-50/80 border-2 border-blue-200 rounded-2xl p-4 w-full max-w-md my-2 space-y-2 text-left">
+                <div class="flex justify-between items-center font-bold text-gray-700">
+                    <span>🎯 Total Skor Akhir:</span>
+                    <span id="finalScore" class="font-game text-2xl text-blue-600">0</span>
+                </div>
+                <div class="flex justify-between items-center font-bold text-gray-700">
+                    <span>✅ Jawaban Benar:</span>
+                    <span id="finalCorrect" class="font-game text-xl text-green-600">0</span>
+                </div>
+                <div class="flex justify-between items-center font-bold text-gray-700">
+                    <span>⭐ Gelar Matematika:</span>
+                    <span id="finalTitle" class="font-bold text-purple-600">Pahlawan Perkalian</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md mt-4">
+                <button onclick="startGame()" class="btn-3d btn-green font-game text-xl py-3 px-6 w-full">
+                    🔄 MAIN LAGI
+                </button>
+                <button onclick="showStartScreen()" class="btn-3d btn-purple font-game text-xl py-3 px-6 w-full">
+                    🏠 MENU UTAMA
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- HELP MODAL -->
+    <div id="helpModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="clay-card p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto space-y-4 relative">
+            <button onclick="closeHelpModal()" class="absolute top-4 right-4 bg-red-500 text-white font-bold w-8 h-8 rounded-full hover:bg-red-600">✕</button>
+            
+            <h2 class="font-game text-2xl text-blue-600 text-center">📜 Petunjuk Petualangan</h2>
+            
+            <div class="space-y-3 text-sm sm:text-base text-gray-700 font-semibold">
+                <div class="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
+                    <strong class="text-yellow-800">Level 1 - Kenali Perkalian:</strong><br>
+                    Pelajari bahwa perkalian adalah penjumlahan berulang dari kelompok benda.
+                </div>
+                <div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                    <strong class="text-blue-800">Level 2 - Hitung & Pilih:</strong><br>
+                    Jawab soal perkalian dengan memilih 1 dari 3 pilihan jawaban yang benar.
+                </div>
+                <div class="p-3 bg-purple-50 rounded-xl border border-purple-200">
+                    <strong class="text-purple-800">Level 3 - Petualangan Angka:</strong><br>
+                    Selesaikan soal cerita perkalian untuk mendapatkan kunci dan membuka 3 gerbang kerajaan.
+                </div>
+                <div class="p-3 bg-red-50 rounded-xl border border-red-200">
+                    <strong class="text-red-800">Level 4 - Tantangan Raja:</strong><br>
+                    Jawab 10 soal acak cepat! Kamu punya 3 kesempatan (nyawa).
+                </div>
+            </div>
+
+            <button onclick="closeHelpModal()" class="btn-3d btn-blue font-game text-lg py-2.5 px-6 w-full mt-2">
+                SIAP BERMAIN! 👍
+            </button>
+        </div>
+    </div>
+
+    <!-- SOUND SYNTHESIZER & GAME LOGIC SCRIPT -->
+    <script>
+        /* --------------------------------------------------
+           AUDIO SYNTHESIZER (Web Audio API & Web Speech API)
+           -------------------------------------------------- */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.sfxMuted = false;
+                this.musicMuted = false;
+                this.bgmTimer = null;
+                this.synthVoice = window.speechSynthesis || null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playPop() {
+                if (this.sfxMuted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playCorrect() {
+                if (this.sfxMuted) return;
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, index) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + index * 0.08);
+
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + index * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + index * 0.08 + 0.15);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + index * 0.08);
+                    osc.stop(this.ctx.currentTime + index * 0.08 + 0.15);
+                });
+            }
+
+            playWrong() {
+                if (this.sfxMuted) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(120, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+
+            playVictory() {
+                if (this.sfxMuted) return;
+                this.init();
+                const melody = [440, 554.37, 659.25, 880, 659.25, 880];
+                melody.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.12);
+                    gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.12);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.12 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + i * 0.12);
+                    osc.stop(this.ctx.currentTime + i * 0.12 + 0.2);
+                });
+            }
+
+            speak(text) {
+                if (this.sfxMuted || !this.synthVoice) return;
+                try {
+                    this.synthVoice.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'id-ID';
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.2; // Robot-like cheerful pitch
+                    this.synthVoice.speak(utterance);
+                } catch(e) {
+                    console.log("Speech synthesis error or unsupported");
+                }
+            }
+
+            startBGM() {
+                if (this.musicMuted || this.bgmTimer) return;
+                this.init();
+                let noteIndex = 0;
+                const notes = [261.63, 329.63, 392.00, 329.63, 261.63, 392.00, 329.63, 392.00]; // Playful C major loop
+                
+                this.bgmTimer = setInterval(() => {
+                    if (this.musicMuted) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(notes[noteIndex], this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.35);
+                    noteIndex = (noteIndex + 1) % notes.length;
+                }, 400);
+            }
+
+            stopBGM() {
+                if (this.bgmTimer) {
+                    clearInterval(this.bgmTimer);
+                    this.bgmTimer = null;
+                }
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        function toggleSFX() {
+            sound.sfxMuted = !sound.sfxMuted;
+            document.getElementById('btnSound').innerText = sound.sfxMuted ? '🔇' : '🔊';
+            if(!sound.sfxMuted) sound.playPop();
+        }
+
+        function toggleMusic() {
+            sound.musicMuted = !sound.musicMuted;
+            document.getElementById('btnMusic').innerText = sound.musicMuted ? '🎵❌' : '🎵';
+            if (!sound.musicMuted) {
+                sound.startBGM();
+            } else {
+                sound.stopBGM();
+            }
+        }
+
+        /* --------------------------------------------------
+           GAME STATE & DATA
+           -------------------------------------------------- */
+        let gameState = {
+            currentLevel: 1,
+            score: 0,
+            stars: 0,
+            totalCorrect: 0,
+            
+            // Level 1 Data
+            l1Step: 0,
+            l1Questions: [
+                { a: 3, b: 2, item: '🍎', name: 'Apel' },
+                { a: 4, b: 3, item: '🍬', name: 'Permen' },
+                { a: 2, b: 5, item: '⚽', name: 'Bola' }
+            ],
+
+            // Level 2 Data
+            l2Index: 0,
+            l2Questions: [
+                { a: 3, b: 3, ans: 9, alt: [6, 12] },
+                { a: 4, b: 2, ans: 8, alt: [6, 10] },
+                { a: 5, b: 4, ans: 20, alt: [15, 25] },
+                { a: 6, b: 3, ans: 18, alt: [12, 21] }
+            ],
+
+            // Level 3 Data
+            l3Gate: 1,
+            l3Questions: [
+                { story: "Raja Robot punya 3 kantong permen, tiap kantong berisi 4 permen. Berapa total permen?", a: 3, b: 4, ans: 12, item: '🍬', alt: [10, 14] },
+                { story: "Di kebun terdapat 4 pohon apel, tiap pohon berbuah 5 apel segar. Berapa total apel?", a: 4, b: 5, ans: 20, item: '🍎', alt: [18, 25] },
+                { story: "MATI menemukan 5 kotak bintang, setiap kotak berisi 5 bintang bersinar. Berapa total bintang?", a: 5, b: 5, ans: 25, item: '⭐', alt: [20, 30] }
+            ],
+
+            // Level 4 Data (Boss)
+            l4Index: 0,
+            l4Lives: 3,
+            l4Questions: []
+        };
+
+        /* --------------------------------------------------
+           NAVIGATION & CONTROLLER
+           -------------------------------------------------- */
+        function showStartScreen() {
+            sound.playPop();
+            document.getElementById('screenStart').classList.remove('hidden');
+            document.getElementById('screenGame').classList.add('hidden');
+            document.getElementById('screenVictory').classList.add('hidden');
+            document.getElementById('fireworksCanvas').classList.add('hidden');
+        }
+
+        function showHelpModal() {
+            sound.playPop();
+            document.getElementById('helpModal').classList.remove('hidden');
+        }
+
+        function closeHelpModal() {
+            sound.playPop();
+            document.getElementById('helpModal').classList.add('hidden');
+        }
+
+        function startGame() {
+            sound.playPop();
+            sound.startBGM();
+            sound.speak("Selamat datang di Kerajaan Perkalian! Mari kita mulai petualangan!");
+
+            // Reset Game State
+            gameState.currentLevel = 1;
+            gameState.score = 0;
+            gameState.stars = 0;
+            gameState.totalCorrect = 0;
+            gameState.l1Step = 0;
+            gameState.l2Index = 0;
+            gameState.l3Gate = 1;
+            gameState.l4Index = 0;
+            gameState.l4Lives = 3;
+            generateLevel4Questions();
+
+            updateHeaderUI();
+
+            document.getElementById('screenStart').classList.add('hidden');
+            document.getElementById('screenVictory').classList.add('hidden');
+            document.getElementById('screenGame').classList.remove('hidden');
+
+            loadLevel(1);
+        }
+
+        function updateHeaderUI() {
+            document.getElementById('scoreText').innerText = gameState.score;
+            document.getElementById('scoreStars').innerText = gameState.stars;
+            document.getElementById('levelBadge').innerText = `LEVEL ${gameState.currentLevel}`;
+            
+            const titles = ["Kenali Perkalian", "Hitung & Pilih", "Petualangan Angka", "Tantangan Raja"];
+            document.getElementById('levelTitle').innerText = titles[gameState.currentLevel - 1];
+        }
+
+        function setRobotFeedback(text, speakVoice = true) {
+            document.getElementById('robotFeedbackText').innerText = `"${text}"`;
+            if (speakVoice) {
+                sound.speak(text);
+            }
+        }
+
+        function loadLevel(levelNum) {
+            gameState.currentLevel = levelNum;
+            updateHeaderUI();
+
+            // Hide all level containers
+            document.querySelectorAll('.level-container').forEach(el => el.classList.add('hidden'));
+
+            if (levelNum === 1) {
+                document.getElementById('level1').classList.remove('hidden');
+                setupLevel1();
+            } else if (levelNum === 2) {
+                document.getElementById('level2').classList.remove('hidden');
+                setupLevel2();
+            } else if (levelNum === 3) {
+                document.getElementById('level3').classList.remove('hidden');
+                setupLevel3();
+            } else if (levelNum === 4) {
+                document.getElementById('level4').classList.remove('hidden');
+                setupLevel4();
+            }
+        }
+
+        /* --------------------------------------------------
+           LEVEL 1 LOGIC
+           -------------------------------------------------- */
+        function setupLevel1() {
+            const q = gameState.l1Questions[gameState.l1Step];
+            document.getElementById('l1Equation').innerText = `${q.a} × ${q.b} = ?`;
+            document.getElementById('l1Explanation').innerText = `Terdapat ${q.a} kelompok ${q.name}, setiap kelompok berisi ${q.b} ${q.name}.`;
+            document.getElementById('l1BtnCalculate').classList.remove('hidden');
+            document.getElementById('l1BtnNext').classList.add('hidden');
+
+            // Render groups
+            const container = document.getElementById('l1VisualGroups');
+            container.innerHTML = '';
+            for (let i = 0; i < q.a; i++) {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'bg-yellow-100 border-2 border-yellow-300 rounded-2xl p-3 flex flex-col items-center shadow-sm animate-float';
+                groupDiv.style.animationDelay = `${i * 0.2}s`;
+                
+                let itemsStr = '';
+                for (let j = 0; j < q.b; j++) {
+                    itemsStr += `<span class="text-2xl sm:text-3xl m-0.5">${q.item}</span>`;
+                }
+                groupDiv.innerHTML = `
+                    <div class="flex flex-wrap justify-center max-w-[100px]">${itemsStr}</div>
+                    <span class="text-xs font-bold text-yellow-800 mt-1">Kelompok ${i+1} (${q.b})</span>
+                `;
+                container.appendChild(groupDiv);
+            }
+
+            setRobotFeedback(`Lihat! Ada ${q.a} kelompok. Mari kita hitung bersama!`, true);
+        }
+
+        function calcLevel1() {
+            sound.playCorrect();
+            const q = gameState.l1Questions[gameState.l1Step];
+            const ans = q.a * q.b;
+            
+            // Build repeated addition string
+            let addStr = Array(q.a).fill(q.b).join(' + ');
+            
+            document.getElementById('l1Equation').innerText = `${q.a} × ${q.b} = ${ans}`;
+            document.getElementById('l1Explanation').innerText = `${addStr} = ${ans}! Hebat!`;
+            
+            gameState.score += 10;
+            gameState.stars += 1;
+            gameState.totalCorrect++;
+            updateHeaderUI();
+
+            document.getElementById('l1BtnCalculate').classList.add('hidden');
+            document.getElementById('l1BtnNext').classList.remove('hidden');
+
+            setRobotFeedback(`Hebat! ${q.a} kali ${q.b} sama dengan ${addStr} yaitu ${ans}!`, true);
+        }
+
+        function nextLevel1Question() {
+            sound.playPop();
+            gameState.l1Step++;
+            if (gameState.l1Step < gameState.l1Questions.length) {
+                setupLevel1();
+            } else {
+                setRobotFeedback("Luar biasa! Kamu paham konsep perkalian. Lanjut ke Level 2!", true);
+                setTimeout(() => loadLevel(2), 1500);
+            }
+        }
+
+        /* --------------------------------------------------
+           LEVEL 2 LOGIC
+           -------------------------------------------------- */
+        function setupLevel2() {
+            document.getElementById('l2HintBox').classList.add('hidden');
+            const q = gameState.l2Questions[gameState.l2Index];
+            document.getElementById('l2QuestionText').innerText = `${q.a} × ${q.b} = ?`;
+
+            // Prepare options
+            let options = [q.ans, ...q.alt];
+            options.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('l2OptionsGrid');
+            grid.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-3d btn-blue font-game text-3xl py-5 px-4 w-full';
+                btn.innerText = opt;
+                btn.onclick = () => checkLevel2Answer(opt, q.ans, q.a, q.b);
+                grid.appendChild(btn);
+            });
+
+            setRobotFeedback(`Berapakah hasil dari ${q.a} dikali ${q.b}?`, true);
+        }
+
+        function checkLevel2Answer(selected, correct, a, b) {
+            if (selected === correct) {
+                sound.playCorrect();
+                gameState.score += 15;
+                gameState.stars += 1;
+                gameState.totalCorrect++;
+                updateHeaderUI();
+                setRobotFeedback("Hebat! Jawabanmu benar sekali!", true);
+
+                gameState.l2Index++;
+                if (gameState.l2Index < gameState.l2Questions.length) {
+                    setTimeout(setupLevel2, 1200);
+                } else {
+                    setTimeout(() => {
+                        setRobotFeedback("Kamu berhasil menyelesaikan Level 2! Sekarang buka gerbang kerajaan!", true);
+                        loadLevel(3);
+                    }, 1200);
+                }
+            } else {
+                sound.playWrong();
+                document.getElementById('l2HintBox').classList.remove('hidden');
+                let addArr = Array(a).fill(b).join(' + ');
+                document.getElementById('l2HintText').innerText = `${a} × ${b} artinya ${addArr}`;
+                setRobotFeedback("Jangan menyerah, coba lagi! Perhatikan petunjuknya ya.", true);
+            }
+        }
+
+        /* --------------------------------------------------
+           LEVEL 3 LOGIC
+           -------------------------------------------------- */
+        function setupLevel3() {
+            updateGateUI();
+            const q = gameState.l3Questions[gameState.l3Gate - 1];
+            document.getElementById('l3StoryQuestion').innerText = q.story;
+
+            // Visual clue items
+            const clueDiv = document.getElementById('l3VisualClue');
+            clueDiv.innerHTML = '';
+            for(let i=0; i<q.a; i++) {
+                let items = '';
+                for(let j=0; j<q.b; j++) items += q.item;
+                clueDiv.innerHTML += `<div class="bg-white px-2 py-1 rounded-xl shadow-sm text-lg">${items}</div>`;
+            }
+
+            // Keys options
+            let options = [q.ans, ...q.alt];
+            options.sort(() => Math.random() - 0.5);
+
+            const keysContainer = document.getElementById('l3KeysContainer');
+            keysContainer.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-3d btn-yellow font-game text-2xl py-4 px-4 w-full flex items-center justify-center gap-2';
+                btn.innerHTML = `🔑 Kunci: ${opt}`;
+                btn.onclick = () => checkLevel3Key(opt, q.ans);
+                keysContainer.appendChild(btn);
+            });
+
+            setRobotFeedback("Pilih kunci jawaban yang tepat untuk membuka gerbang!", true);
+        }
+
+        function updateGateUI() {
+            for (let i = 1; i <= 3; i++) {
+                const gate = document.getElementById(`gate${i}`);
+                if (i < gameState.l3Gate) {
+                    gate.className = 'w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-green-500 border-4 border-green-700 flex items-center justify-center text-2xl shadow-md text-white';
+                    gate.innerText = '✅';
+                } else if (i === gameState.l3Gate) {
+                    gate.className = 'w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-amber-400 border-4 border-amber-600 flex items-center justify-center text-2xl shadow-md animate-bounce';
+                    gate.innerText = '🚪';
+                } else {
+                    gate.className = 'w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gray-300 border-4 border-gray-400 flex items-center justify-center text-2xl shadow-md';
+                    gate.innerText = '🔒';
+                }
+            }
+        }
+
+        function checkLevel3Key(selected, correct) {
+            if (selected === correct) {
+                sound.playCorrect();
+                gameState.score += 20;
+                gameState.stars += 1;
+                gameState.totalCorrect++;
+                updateHeaderUI();
+
+                gameState.l3Gate++;
+                if (gameState.l3Gate <= 3) {
+                    setRobotFeedback("Hore! Gerbang terbuka! Lanjut ke gerbang berikutnya!", true);
+                    setTimeout(setupLevel3, 1200);
+                } else {
+                    updateGateUI();
+                    setRobotFeedback("Luar biasa! Semua gerbang istana telah terbuka! Bersiap untuk Tantangan Raja!", true);
+                    setTimeout(() => loadLevel(4), 1500);
+                }
+            } else {
+                sound.playWrong();
+                setRobotFeedback("Kunci kurang pas! Coba hitung kembali total bendanya ya.", true);
+            }
+        }
+
+        /* --------------------------------------------------
+           LEVEL 4 LOGIC (BOSS LEVEL)
+           -------------------------------------------------- */
+        function generateLevel4Questions() {
+            gameState.l4Questions = [];
+            for (let i = 0; i < 10; i++) {
+                const a = Math.floor(Math.random() * 9) + 2; // 2..10
+                const b = Math.floor(Math.random() * 9) + 2; // 2..10
+                const ans = a * b;
+                
+                let alt1 = ans + (Math.random() > 0.5 ? 2 : -2);
+                let alt2 = ans + (Math.random() > 0.5 ? 5 : -4);
+                if (alt1 === ans || alt1 <= 0) alt1 = ans + 3;
+                if (alt2 === ans || alt2 === alt1 || alt2 <= 0) alt2 = ans + 7;
+
+                gameState.l4Questions.push({ a, b, ans, alt: [alt1, alt2] });
+            }
+        }
+
+        function setupLevel4() {
+            updateLevel4LivesUI();
+            document.getElementById('l4QuestionIndex').innerText = `${gameState.l4Index + 1}/10`;
+
+            const q = gameState.l4Questions[gameState.l4Index];
+            document.getElementById('l4QuestionText').innerText = `${q.a} × ${q.b} = ?`;
+
+            let options = [q.ans, ...q.alt];
+            options.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById('l4OptionsGrid');
+            grid.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-3d btn-red font-game text-3xl py-5 px-4 w-full';
+                btn.innerText = opt;
+                btn.onclick = () => checkLevel4Answer(opt, q.ans);
+                grid.appendChild(btn);
+            });
+
+            setRobotFeedback(`Soal ke-${gameState.l4Index + 1}! Konsentrasi dan pilih jawabanmu!`, true);
+        }
+
+        function updateLevel4LivesUI() {
+            let heartsStr = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < gameState.l4Lives) {
+                    heartsStr += '❤️ ';
+                } else {
+                    heartsStr += '🖤 ';
+                }
+            }
+            document.getElementById('l4Lives').innerText = heartsStr;
+        }
+
+        function checkLevel4Answer(selected, correct) {
+            if (selected === correct) {
+                sound.playCorrect();
+                gameState.score += 25;
+                gameState.stars += 1;
+                gameState.totalCorrect++;
+                updateHeaderUI();
+
+                gameState.l4Index++;
+                if (gameState.l4Index < 10) {
+                    setRobotFeedback("Jawaban Tepat! Lanjut ke soal berikutnya!", false);
+                    setupLevel4();
+                } else {
+                    showVictoryScreen();
+                }
+            } else {
+                sound.playWrong();
+                gameState.l4Lives--;
+                updateLevel4LivesUI();
+
+                if (gameState.l4Lives > 0) {
+                    setRobotFeedback("Aduh, belum tepat! Hati-hati, nyawamu berkurang!", true);
+                } else {
+                    setRobotFeedback("Nyawa habis! Tapi jangan khawatir, mari kita coba lagi Tantangan Raja!", true);
+                    setTimeout(() => {
+                        gameState.l4Lives = 3;
+                        gameState.l4Index = 0;
+                        setupLevel4();
+                    }, 2000);
+                }
+            }
+        }
+
+        /* --------------------------------------------------
+           VICTORY SCREEN & FIREWORKS
+           -------------------------------------------------- */
+        function showVictoryScreen() {
+            sound.playVictory();
+            sound.speak("Selamat! Kamu adalah Pahlawan Kerajaan Perkalian!");
+
+            document.getElementById('screenGame').classList.add('hidden');
+            document.getElementById('screenVictory').classList.remove('hidden');
+            document.getElementById('fireworksCanvas').classList.remove('hidden');
+
+            document.getElementById('finalScore').innerText = gameState.score;
+            document.getElementById('finalCorrect').innerText = `${gameState.totalCorrect} Soal`;
+
+            // Titles & Stars logic
+            let title = "Prajurit Perkalian 🛡️";
+            let starsStr = "⭐ ⭐ 🌟";
+            if (gameState.score > 250) {
+                title = "Raja Perkalian 👑✨";
+                starsStr = "⭐ ⭐ ⭐ ⭐ ⭐";
+            } else if (gameState.score > 150) {
+                title = "Pahlawan Perkalian ⚔️";
+                starsStr = "⭐ ⭐ ⭐ ⭐";
+            }
+
+            document.getElementById('finalTitle').innerText = title;
+            document.getElementById('victoryStarsContainer').innerText = starsStr;
+
+            startFireworks();
+        }
+
+        /* --------------------------------------------------
+           CANVAS PARTICLES & FIREWORKS ENGINE
+           -------------------------------------------------- */
+        // Background Floating Stars Canvas
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let bgStars = [];
+
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeBgCanvas);
+        resizeBgCanvas();
+
+        for(let i=0; i<30; i++) {
+            bgStars.push({
+                x: Math.random() * bgCanvas.width,
+                y: Math.random() * bgCanvas.height,
+                size: Math.random() * 8 + 4,
+                speedY: Math.random() * 0.5 + 0.2,
+                opacity: Math.random()
+            });
+        }
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            bgCtx.fillStyle = '#ffffff';
+
+            bgStars.forEach(s => {
+                s.y -= s.speedY;
+                if (s.y < 0) s.y = bgCanvas.height;
+                bgCtx.globalAlpha = Math.abs(Math.sin(Date.now() * 0.002 + s.x));
+                bgCtx.beginPath();
+                bgCtx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                bgCtx.fill();
+            });
+
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        // Fireworks Canvas Engine
+        const fwCanvas = document.getElementById('fireworksCanvas');
+        const fwCtx = fwCanvas.getContext('2d');
+        let particles = [];
+
+        function resizeFwCanvas() {
+            fwCanvas.width = window.innerWidth;
+            fwCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeFwCanvas);
+        resizeFwCanvas();
+
+        function startFireworks() {
+            particles = [];
+            const colors = ['#facc15', '#4ade80', '#60a5fa', '#f43f5e', '#c084fc'];
+            
+            for (let i = 0; i < 150; i++) {
+                particles.push({
+                    x: fwCanvas.width / 2,
+                    y: fwCanvas.height / 2,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    size: Math.random() * 6 + 3,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 100
+                });
+            }
+
+            function renderFw() {
+                if (document.getElementById('screenVictory').classList.contains('hidden')) return;
+                fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+                particles.forEach((p, idx) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05; // gravity
+                    p.life -= 1;
+
+                    fwCtx.fillStyle = p.color;
+                    fwCtx.globalAlpha = p.life / 100;
+                    fwCtx.beginPath();
+                    fwCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    fwCtx.fill();
+
+                    if (p.life <= 0) particles.splice(idx, 1);
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(renderFw);
+                }
+            }
+            renderFw();
+        }
+
+        // Initialize Audio resume listener on initial click
+        window.addEventListener('pointerdown', () => {
+            sound.init();
+        }, { once: true });
+
+    </script>
+</body>
+</html>
